@@ -73,14 +73,13 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SpawnServerRPC()
+    private void SpawnServerRPC(ulong netID)
     {
         Collider2D intersectingCollider = Physics2D.OverlapBox(transform.position, new Vector2(0.5f, 0.5f), 0);
         if (intersectingCollider == null) {
             int prefabIndex = Random.Range(0, plantPrefabs.Length - 1);
-            Debug.Log(prefabIndex);  
             GameObject go = Instantiate(plantPrefabs[prefabIndex], transform.position, Quaternion.identity);
-            go.GetComponent<NetworkObject>().Spawn(); 
+            go.GetComponent<NetworkObject>().SpawnWithOwnership(netID); 
             ulong itemNetID = go.GetComponent<NetworkObject>().NetworkObjectId;
 
             SpawnClientRPC(itemNetID);
@@ -93,19 +92,27 @@ public class PlayerController : NetworkBehaviour
         NetworkObject netObj = NetworkSpawnManager.SpawnedObjects[itemNetID];
     }
 
-    void SpawnPlant()
-    {
-        SpawnServerRPC();
-    }
-
-    void CutPlant()
+    [ServerRpc]
+    private void CutServerRPC()
     {
         Collider2D intersectingCollider = Physics2D.OverlapBox(lookPoint.position, new Vector2(0.5f, 0.5f), 0);
         if (intersectingCollider != null) {
             if (intersectingCollider.tag == "Plant")
             {
-                Destroy(intersectingCollider.gameObject);
+                ulong itemNetID = intersectingCollider.gameObject.GetComponent<NetworkObject>().NetworkObjectId;
+                NetworkObject no = NetworkSpawnManager.SpawnedObjects[itemNetID];
+                NetworkManager.Destroy(no.gameObject);
             }
         }
+    }
+    
+    void SpawnPlant()
+    {
+        SpawnServerRPC(NetworkManager.Singleton.LocalClientId);
+    }
+
+    void CutPlant()
+    {
+        CutServerRPC();
     }
 }
