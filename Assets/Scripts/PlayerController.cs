@@ -11,6 +11,8 @@ public class PlayerController : NetworkBehaviour
     float moveSpeed = 5f;
     [SerializeField]
     Transform movePoint;
+    [SerializeField]
+    Transform lookPoint;
 
     [SerializeField]
     LayerMask whatStopsMovement;
@@ -20,6 +22,7 @@ public class PlayerController : NetworkBehaviour
     void Start()
     {
         movePoint.parent = null;
+        lookPoint.parent = null;
     }
 
     void Update()
@@ -35,6 +38,11 @@ public class PlayerController : NetworkBehaviour
                     if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
                     {
                         movePoint.position += desiredMovement;
+                        lookPoint.position = movePoint.position + desiredMovement;
+                    }
+                    else 
+                    {
+                        lookPoint.position = transform.position + desiredMovement;
                     }
                 } 
                 else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f)
@@ -43,21 +51,34 @@ public class PlayerController : NetworkBehaviour
                     if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
                     {
                         movePoint.position += new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
+                        lookPoint.position = movePoint.position + desiredMovement;
+                    }
+                    else 
+                    {
+                        lookPoint.position = transform.position + desiredMovement;
                     }
                 }
 
-                if (Input.GetKey(KeyCode.Space)) {
+                if (Input.GetKey(KeyCode.Space)) 
+                {
                     SpawnPlant();
+                }
+
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    CutPlant();
                 }
             }
         }
     }
 
     [ServerRpc]
-    private void SpawnServerRPC(int prefabIndex)
+    private void SpawnServerRPC()
     {
         Collider2D intersectingCollider = Physics2D.OverlapBox(transform.position, new Vector2(0.5f, 0.5f), 0);
         if (intersectingCollider == null) {
+            int prefabIndex = Random.Range(0, plantPrefabs.Length - 1);
+            Debug.Log(prefabIndex);  
             GameObject go = Instantiate(plantPrefabs[prefabIndex], transform.position, Quaternion.identity);
             go.GetComponent<NetworkObject>().Spawn(); 
             ulong itemNetID = go.GetComponent<NetworkObject>().NetworkObjectId;
@@ -70,13 +91,21 @@ public class PlayerController : NetworkBehaviour
     private void SpawnClientRPC(ulong itemNetID)
     {
         NetworkObject netObj = NetworkSpawnManager.SpawnedObjects[itemNetID];
-
     }
 
     void SpawnPlant()
     {
-            int prefabIndex = Random.Range(0, plantPrefabs.Length - 1);
-            Debug.Log(prefabIndex);           
-            SpawnServerRPC(prefabIndex);
+        SpawnServerRPC();
+    }
+
+    void CutPlant()
+    {
+        Collider2D intersectingCollider = Physics2D.OverlapBox(lookPoint.position, new Vector2(0.5f, 0.5f), 0);
+        if (intersectingCollider != null) {
+            if (intersectingCollider.tag == "Plant")
+            {
+                Destroy(intersectingCollider.gameObject);
+            }
+        }
     }
 }
