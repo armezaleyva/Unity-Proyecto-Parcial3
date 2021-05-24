@@ -13,6 +13,8 @@ public class PlayerController : NetworkBehaviour
 
     [SerializeField]
     LayerMask whatStopsMovement;
+    [SerializeField]
+    GameObject[] plantPrefabs;
 
     public override void NetworkStart()
     {
@@ -57,7 +59,21 @@ public class PlayerController : NetworkBehaviour
                         movePoint.position += new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
                     }
                 }
+
+                if (Input.GetKey(KeyCode.Space)) {
+                    SpawnPlant();
+                }
             }
+        }
+    }
+
+    void SpawnPlant()
+    {
+        Collider2D intersectingCollider = Physics2D.OverlapBox(transform.position, new Vector2(0.5f, 0.5f), 0);
+        if (intersectingCollider == null) {
+            int prefabIndex = Random.Range(0, plantPrefabs.Length - 1);
+            Debug.Log(prefabIndex);
+            Instantiate(plantPrefabs[prefabIndex], transform.position, Quaternion.identity);
         }
     }
 }
