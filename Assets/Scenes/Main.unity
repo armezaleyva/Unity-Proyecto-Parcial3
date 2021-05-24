@@ -5297,9 +5297,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 785759611}
     m_Modifications:
+    - target: {fileID: 8188093421702517640, guid: 05819c965cbbeef468a128ccb8b5dfb7, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8188093421702517645, guid: 05819c965cbbeef468a128ccb8b5dfb7, type: 3}
       propertyPath: m_Name
       value: WaitingForPlayers
+      objectReference: {fileID: 0}
+    - target: {fileID: 8188093421702517645, guid: 05819c965cbbeef468a128ccb8b5dfb7, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8188093421702517646, guid: 05819c965cbbeef468a128ccb8b5dfb7, type: 3}
       propertyPath: m_Pivot.x

@@ -19,7 +19,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField]
     LayerMask whatStopsMovement;
     TextMeshProUGUI txtGameTime;
-    [SerializeField]
     TextMeshProUGUI txtWaitingForPlayers;
     [SerializeField]
     GameObject[] plantPrefabs;
@@ -32,11 +31,13 @@ public class PlayerController : NetworkBehaviour
     {
         movePoint.parent = null;
         lookPoint.parent = null;
+
         timer = 5f;
         txtGameTime = GameObject.Find("GameTimerText").GetComponentInChildren<TextMeshProUGUI>();
-        txtGameTime.gameObject.SetActive(true);
+        txtWaitingForPlayers = GameObject.Find("WaitingForPlayers").GetComponentInChildren<TextMeshProUGUI>();
+
         txtGameTime.text = ((int)timer).ToString();
-        txtWaitingForPlayers.gameObject.SetActive(true);
+        txtWaitingForPlayers.text = "Waiting for players...";
         Debug.Log((int)timer);
     }
 
