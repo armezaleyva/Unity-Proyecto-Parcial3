@@ -33,7 +33,7 @@ public class PlayerController : NetworkBehaviour
 
     void Awake()
     {
-        anim = GetComponent<Animator>();        
+        anim = GetComponentInChildren<Animator>();        
     }
 
     void Start()
@@ -123,6 +123,15 @@ public class PlayerController : NetworkBehaviour
                     CutPlant();
                 }
             }
+        }
+    }
+
+    void LateUpdate()
+    {
+        if(IsLocalPlayer){
+            anim.SetFloat("moveX", Input.GetAxisRaw("Horizontal"));
+            anim.SetFloat("moveY", Input.GetAxisRaw("Vertical"));
+            if(gameStarted) anim.SetBool("gameStarted", true);
         }
     }
 
