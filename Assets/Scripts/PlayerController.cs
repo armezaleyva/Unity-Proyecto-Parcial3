@@ -4,6 +4,7 @@ using UnityEngine;
 using MLAPI;
 using MLAPI.Messaging;
 using MLAPI.Spawning;
+using MLAPI.NetworkVariable;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -26,7 +27,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     void Update()
-    {
+    { 
         if(IsLocalPlayer){
             transform.position = Vector3.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
 
@@ -38,11 +39,11 @@ public class PlayerController : NetworkBehaviour
                     if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
                     {
                         movePoint.position += desiredMovement;
-                        lookPoint.position = movePoint.position + desiredMovement;
+                        lookPoint.position = movePoint.position + desiredMovement;              
                     }
                     else 
                     {
-                        lookPoint.position = transform.position + desiredMovement;
+                        lookPoint.position = transform.position + desiredMovement;        
                     }
                 } 
                 else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f)
@@ -51,11 +52,11 @@ public class PlayerController : NetworkBehaviour
                     if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
                     {
                         movePoint.position += new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
-                        lookPoint.position = movePoint.position + desiredMovement;
+                        lookPoint.position = movePoint.position + desiredMovement;           
                     }
                     else 
                     {
-                        lookPoint.position = transform.position + desiredMovement;
+                        lookPoint.position = transform.position + desiredMovement;       
                     }
                 }
 
@@ -72,29 +73,10 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
-    private void SpawnServerRPC(ulong netID)
-    {
-        Collider2D intersectingCollider = Physics2D.OverlapBox(transform.position, new Vector2(0.5f, 0.5f), 0);
-        if (intersectingCollider == null) {
-            int prefabIndex = Random.Range(0, plantPrefabs.Length - 1);
-            GameObject go = Instantiate(plantPrefabs[prefabIndex], transform.position, Quaternion.identity);
-            go.GetComponent<NetworkObject>().SpawnWithOwnership(netID); 
-            ulong itemNetID = go.GetComponent<NetworkObject>().NetworkObjectId;
-
-            SpawnClientRPC(itemNetID);
-        }
-    }
-
-    [ClientRpc]
-    private void SpawnClientRPC(ulong itemNetID)
-    {
-        NetworkObject netObj = NetworkSpawnManager.SpawnedObjects[itemNetID];
-    }
-
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void CutServerRPC()
     {
+        Debug.Log(lookPoint.position);
         Collider2D intersectingCollider = Physics2D.OverlapBox(lookPoint.position, new Vector2(0.5f, 0.5f), 0);
         if (intersectingCollider != null) {
             if (intersectingCollider.tag == "Plant")
@@ -104,6 +86,27 @@ public class PlayerController : NetworkBehaviour
                 NetworkManager.Destroy(no.gameObject);
             }
         }
+    }
+
+    [ServerRpc]
+    private void SpawnServerRPC(ulong netID)
+    {
+        Collider2D intersectingCollider = Physics2D.OverlapBox(transform.position, new Vector2(0.5f, 0.5f), 0);
+        if (intersectingCollider == null) {
+            int prefabIndex = Random.Range(0, plantPrefabs.Length - 1);
+            GameObject go = Instantiate(plantPrefabs[prefabIndex], transform.position, Quaternion.identity);
+            go.GetComponent<NetworkObject>().SpawnWithOwnership(netID); 
+            ulong itemNetID = go.GetComponent<NetworkObject>().NetworkObjectId;
+                    Debug.Log(lookPoint.position);
+
+            SpawnClientRPC(itemNetID);
+        }
+    }
+
+    [ClientRpc]
+    private void SpawnClientRPC(ulong itemNetID)
+    {
+        NetworkObject netObj = NetworkSpawnManager.SpawnedObjects[itemNetID];
     }
     
     void SpawnPlant()
