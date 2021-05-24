@@ -2584,6 +2584,18 @@ MonoBehaviour:
     NetworkPrefabs:
     - Prefab: {fileID: 1808410478792703301, guid: 87b61cb49d509bf45851972e122538ae, type: 3}
       PlayerPrefab: 1
+    - Prefab: {fileID: 1808410478792703301, guid: 80c3d89d388a2a14d8f4b7ed14cf2d35, type: 3}
+      PlayerPrefab: 0
+    - Prefab: {fileID: 1808410478792703301, guid: 3599e3825ddea56419968148cfd623f4, type: 3}
+      PlayerPrefab: 0
+    - Prefab: {fileID: 1808410478792703301, guid: edc6b0b0325a2a544a198c94f0954132, type: 3}
+      PlayerPrefab: 0
+    - Prefab: {fileID: 1808410478792703301, guid: e68ee935e98195b448d8a8502c5cd2ef, type: 3}
+      PlayerPrefab: 0
+    - Prefab: {fileID: 1808410478792703301, guid: 56cb42a2497ec5f42a2f05d764cbb218, type: 3}
+      PlayerPrefab: 0
+    - Prefab: {fileID: 1808410478792703301, guid: ccd2b07546d6ce342968da98ca74aceb, type: 3}
+      PlayerPrefab: 0
     PlayerPrefabHash:
       id: 0
     CreatePlayerPrefab: 1

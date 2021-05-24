@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using MLAPI;
-using MLAPI.NetworkVariable;
+using MLAPI.Messaging;
+using MLAPI.Spawning;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -15,21 +16,6 @@ public class PlayerController : NetworkBehaviour
     LayerMask whatStopsMovement;
     [SerializeField]
     GameObject[] plantPrefabs;
-
-    public override void NetworkStart()
-    {
-        base.NetworkStart();
-        /*foreach(MLAPI.Connection.NetworkClient client in NetworkManager.Singleton.ConnectedClientsList)
-        {
-            Debug.Log(client.PlayerObject.name);
-        }*/
-        /*NetworkManager.Singleton.OnClientConnectedCallback += client =>{
-            Debug.Log(client);
-        };*/
-        //NetworkObject.name = Gamemanager.instance.currentUsername;
-        //Debug.Log(NetworkObject.name);
-        //NetworkManager.Singleton.LocalClientId;
-    }
 
     void Start()
     {
@@ -67,13 +53,30 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    void SpawnPlant()
+    [ServerRpc]
+    private void SpawnServerRPC(int prefabIndex)
     {
         Collider2D intersectingCollider = Physics2D.OverlapBox(transform.position, new Vector2(0.5f, 0.5f), 0);
         if (intersectingCollider == null) {
-            int prefabIndex = Random.Range(0, plantPrefabs.Length - 1);
-            Debug.Log(prefabIndex);
-            Instantiate(plantPrefabs[prefabIndex], transform.position, Quaternion.identity);
+            GameObject go = Instantiate(plantPrefabs[prefabIndex], transform.position, Quaternion.identity);
+            go.GetComponent<NetworkObject>().Spawn(); 
+            ulong itemNetID = go.GetComponent<NetworkObject>().NetworkObjectId;
+
+            SpawnClientRPC(itemNetID);
         }
+    }
+
+    [ClientRpc]
+    private void SpawnClientRPC(ulong itemNetID)
+    {
+        NetworkObject netObj = NetworkSpawnManager.SpawnedObjects[itemNetID];
+
+    }
+
+    void SpawnPlant()
+    {
+            int prefabIndex = Random.Range(0, plantPrefabs.Length - 1);
+            Debug.Log(prefabIndex);           
+            SpawnServerRPC(prefabIndex);
     }
 }
