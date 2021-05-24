@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using MLAPI;
 using MLAPI.Messaging;
 using MLAPI.Spawning;
-using MLAPI.NetworkVariable;
+using UnityEngine.Networking;
 
 public class PlayerController : NetworkBehaviour
 {
+    public Color color;
     [SerializeField]
     float moveSpeed = 5f;
     [SerializeField]
