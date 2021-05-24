@@ -18,14 +18,14 @@ public class PlayerController : NetworkBehaviour
 
     [SerializeField]
     LayerMask whatStopsMovement;
-    [SerializeField]
     TextMeshProUGUI txtGameTime;
     [SerializeField]
     TextMeshProUGUI txtWaitingForPlayers;
     [SerializeField]
     GameObject[] plantPrefabs;
 
-    float timer;
+    private float timer;
+    NetworkVariableInt players;
     bool gameStarted = false;
 
     void Start()
@@ -33,27 +33,24 @@ public class PlayerController : NetworkBehaviour
         movePoint.parent = null;
         lookPoint.parent = null;
         timer = 5f;
-        txtGameTime.text = ((int)timer).ToString();
+        txtGameTime = GameObject.Find("GameTimerText").GetComponentInChildren<TextMeshProUGUI>();
         txtGameTime.gameObject.SetActive(true);
+        txtGameTime.text = ((int)timer).ToString();
         txtWaitingForPlayers.gameObject.SetActive(true);
         Debug.Log((int)timer);
     }
 
     void Update()
-    { 
-        int players = NetworkManager.ConnectedClientsList.Count;
-
-        // Game doesn't start until there is more than one player
-        if(players >= 2){
+    {
+        GetPlayersServerRPC();
+        if (players.Value >= 2) {
             txtWaitingForPlayers.gameObject.SetActive(false);
-            Debug.Log((int)timer);
             // Start countdown
             if(timer > 0)
             {
-                    timer -= Time.deltaTime;
-                    txtGameTime.gameObject.SetActive(false);
-                    txtGameTime.text = ((int)timer).ToString();
-                    txtGameTime.gameObject.SetActive(true);
+                timer -= Time.deltaTime;
+                Debug.Log(timer);
+                txtGameTime.SetText(((int)timer).ToString());
             }
             else
             {
@@ -62,51 +59,52 @@ public class PlayerController : NetworkBehaviour
                 gameStarted = true;
             }
         }
+        
+        Debug.Log(players);
+        // Game doesn't start until there is more than one player
+        
 
-        if(gameStarted)
+        if(gameStarted && IsLocalPlayer)
         {
-            if(IsLocalPlayer)
+            transform.position = Vector3.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
+
+            if (Vector3.Distance(transform.position, movePoint.position) <= 0.05f) 
             {
-                transform.position = Vector3.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
-
-                if (Vector3.Distance(transform.position, movePoint.position) <= 0.05f) 
+                if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1f)
                 {
-                    if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1f)
+                    Vector3 desiredMovement = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f);
+                    if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
                     {
-                        Vector3 desiredMovement = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f);
-                        if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
-                        {
-                            movePoint.position += desiredMovement;
-                            lookPoint.position = movePoint.position + desiredMovement;              
-                        }
-                        else 
-                        {
-                            lookPoint.position = transform.position + desiredMovement;        
-                        }
-                    } 
-                    else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f)
-                    {
-                        Vector3 desiredMovement = new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
-                        if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
-                        {
-                            movePoint.position += new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
-                            lookPoint.position = movePoint.position + desiredMovement;           
-                        }
-                        else 
-                        {
-                            lookPoint.position = transform.position + desiredMovement;       
-                        }
+                        movePoint.position += desiredMovement;
+                        lookPoint.position = movePoint.position + desiredMovement;              
                     }
+                    else 
+                    {
+                        lookPoint.position = transform.position + desiredMovement;        
+                    }
+                } 
+                else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f)
+                {
+                    Vector3 desiredMovement = new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
+                    if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
+                    {
+                        movePoint.position += new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
+                        lookPoint.position = movePoint.position + desiredMovement;           
+                    }
+                    else 
+                    {
+                        lookPoint.position = transform.position + desiredMovement;       
+                    }
+                }
 
-                    if (Input.GetKey(KeyCode.Space)) 
-                    {
-                        SpawnPlant();
-                    }
+                if (Input.GetKey(KeyCode.Space)) 
+                {
+                    SpawnPlant();
+                }
 
-                    if (Input.GetKey(KeyCode.LeftShift))
-                    {
-                        CutPlant();
-                    }
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    CutPlant();
                 }
             }
         }
@@ -115,7 +113,6 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void CutServerRPC()
     {
-        Debug.Log(lookPoint.position);
         Collider2D intersectingCollider = Physics2D.OverlapBox(lookPoint.position, new Vector2(0.5f, 0.5f), 0);
         if (intersectingCollider != null) {
             if (intersectingCollider.tag == "Plant")
@@ -136,10 +133,14 @@ public class PlayerController : NetworkBehaviour
             GameObject go = Instantiate(plantPrefabs[prefabIndex], transform.position, Quaternion.identity);
             go.GetComponent<NetworkObject>().SpawnWithOwnership(netID); 
             ulong itemNetID = go.GetComponent<NetworkObject>().NetworkObjectId;
-                    Debug.Log(lookPoint.position);
-
             SpawnClientRPC(itemNetID);
         }
+    }
+
+    [ServerRpc]
+    private void GetPlayersServerRPC()
+    {
+        players.Value = NetworkManager.ConnectedClientsList.Count;
     }
 
     [ClientRpc]
