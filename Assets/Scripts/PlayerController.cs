@@ -5,6 +5,8 @@ using MLAPI.Spawning;
 using MLAPI.NetworkVariable;
 using UnityEngine.Networking;
 using TMPro;
+using System.Collections.Generic;
+using System;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -24,6 +26,8 @@ public class PlayerController : NetworkBehaviour
     GameObject[] plantPrefabs;
 
     private float timer;
+    int roundDuration = 15;
+    int downtimeDuration = 5;
     NetworkVariableInt players;
     bool gameStarted = false;
 
@@ -32,13 +36,12 @@ public class PlayerController : NetworkBehaviour
         movePoint.parent = null;
         lookPoint.parent = null;
 
-        timer = 5f;
+        timer = downtimeDuration;
         txtGameTime = GameObject.Find("GameTimerText").GetComponentInChildren<TextMeshProUGUI>();
         txtWaitingForPlayers = GameObject.Find("WaitingForPlayers").GetComponentInChildren<TextMeshProUGUI>();
 
         txtGameTime.text = ((int)timer).ToString();
         txtWaitingForPlayers.text = "Waiting for players...";
-        Debug.Log((int)timer);
     }
 
     void Update()
@@ -50,19 +53,27 @@ public class PlayerController : NetworkBehaviour
             if(timer > 0)
             {
                 timer -= Time.deltaTime;
-                Debug.Log(timer);
                 txtGameTime.SetText(((int)timer).ToString());
             }
             else
             {
-                //Start game
-                txtGameTime.gameObject.SetActive(false);
-                gameStarted = true;
+                if (gameStarted)
+                {
+                    // Calculate winner and reset round
+                    if (IsHost) CalculateWinnerServerRPC();
+                    // Todo : Reset round
+                    // Todo : Check if game over
+                    gameStarted = false;
+                    timer = downtimeDuration;
+                }
+                else
+                {
+                    //Start game
+                    gameStarted = true;
+                    timer = roundDuration;
+                }
             }
         }
-        
-        Debug.Log(players);
-        // Game doesn't start until there is more than one player
         
 
         if(gameStarted && IsLocalPlayer)
@@ -111,6 +122,48 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    [ServerRpc]
+    private void CalculateWinnerServerRPC()
+    {     
+        Debug.Log("Calculating winner...");
+        var spawnedObjects = NetworkSpawnManager.SpawnedObjects;
+        Dictionary<ulong, int> playerPlants = new Dictionary<ulong, int>();
+        foreach (NetworkObject obj in spawnedObjects.Values)
+        {
+            var playerId = obj.OwnerClientId;
+            if (playerPlants.ContainsKey(playerId))
+            {
+                playerPlants[playerId] += 1;
+            }
+            else
+            {
+                playerPlants[playerId] = 0;
+            }
+        }
+
+        var currentBest = -1;
+        List<ulong?> currentWinnersIds = new List<ulong?>();
+        foreach (KeyValuePair<ulong, int> entry in playerPlants)
+        {
+            if (entry.Value > currentBest)
+            {
+                currentBest = entry.Value;
+                currentWinnersIds.Clear();
+                currentWinnersIds.Add(entry.Key);
+            }
+            else if (entry.Value == currentBest)
+            {
+                currentWinnersIds.Add(entry.Key);
+            }
+        }
+
+        Debug.Log("The winners are...");
+        foreach (var xd in currentWinnersIds)
+        {
+            Debug.Log(xd);
+        }
+    }
+
     [ServerRpc(RequireOwnership = false)]
     private void CutServerRPC()
     {
@@ -130,7 +183,7 @@ public class PlayerController : NetworkBehaviour
     {
         Collider2D intersectingCollider = Physics2D.OverlapBox(transform.position, new Vector2(0.5f, 0.5f), 0);
         if (intersectingCollider == null) {
-            int prefabIndex = Random.Range(0, plantPrefabs.Length - 1);
+            int prefabIndex = UnityEngine.Random.Range(0, plantPrefabs.Length - 1);
             GameObject go = Instantiate(plantPrefabs[prefabIndex], transform.position, Quaternion.identity);
             go.GetComponent<NetworkObject>().SpawnWithOwnership(netID); 
             ulong itemNetID = go.GetComponent<NetworkObject>().NetworkObjectId;
