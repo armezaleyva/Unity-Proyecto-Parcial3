@@ -10,7 +10,7 @@ using System;
 
 public class PlayerController : NetworkBehaviour
 {
-    public Color color;
+    protected Animator anim;
     [SerializeField]
     float moveSpeed = 5f;
     [SerializeField]
@@ -31,6 +31,11 @@ public class PlayerController : NetworkBehaviour
     NetworkVariableInt players;
     bool gameStarted = false;
 
+    void Awake()
+    {
+        anim = GetComponent<Animator>();        
+    }
+
     void Start()
     {
         movePoint.parent = null;
@@ -47,7 +52,7 @@ public class PlayerController : NetworkBehaviour
     void Update()
     {
         GetPlayersServerRPC();
-        if (players.Value >= 2) {
+        if (players.Value >= 1) {
             txtWaitingForPlayers.gameObject.SetActive(false);
             // Start countdown
             if(timer > 0)
@@ -87,7 +92,7 @@ public class PlayerController : NetworkBehaviour
                     if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
                     {
                         movePoint.position += desiredMovement;
-                        lookPoint.position = movePoint.position + desiredMovement;              
+                        lookPoint.position = movePoint.position + desiredMovement;
                     }
                     else 
                     {
