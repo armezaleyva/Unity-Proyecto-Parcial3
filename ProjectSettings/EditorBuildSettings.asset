@@ -8,10 +8,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/StartMenu.unity
     guid: 501d8eb284255f94d9049120cdf11755
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/InvadersLobby.unity
     guid: fb86d0d73addef147abe5037070a6cfe
   - enabled: 1

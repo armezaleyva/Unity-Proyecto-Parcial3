@@ -56,6 +56,7 @@ MonoBehaviour:
     - StartMenu
     - InvadersLobby
     - InGame
+    - Main
     AllowRuntimeSceneChanges: 0
     NetworkPrefabs:
     - Prefab: {fileID: 1808410478792703301, guid: 87b61cb49d509bf45851972e122538ae, type: 3}
@@ -68,7 +69,7 @@ MonoBehaviour:
     MaxReceiveEventsPerTickRate: 500
     EventTickrate: 64
     ClientConnectionBufferTimeout: 10
-    ConnectionApproval: 0
+    ConnectionApproval: 1
     ConnectionData: 
     SecondsHistory: 5
     EnableTimeResync: 0
@@ -129,9 +130,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameTimerText: {fileID: 0}
-  scoreText: {fileID: 0}
-  livesText: {fileID: 0}
-  gameOverText: {fileID: 0}
   m_DelayedStartTime: 5
   m_TickPeriodic:
     m_InternalValue: 0.2

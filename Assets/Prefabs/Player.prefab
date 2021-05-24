@@ -174,8 +174,6 @@ GameObject:
   - component: {fileID: 1808410478792703300}
   - component: {fileID: 1808410478792700601}
   - component: {fileID: -2816605163448891036}
-  - component: {fileID: -389457743366842623}
-  - component: {fileID: 548013277275318237}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -231,12 +229,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fe36b19fa195994593e66bdeb422a1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  color: {r: 0, g: 0, b: 0, a: 0}
   moveSpeed: 5
   movePoint: {fileID: 1808410478573443455}
   lookPoint: {fileID: 173642293678953650}
   whatStopsMovement:
     serializedVersion: 2
     m_Bits: 256
+  txtGameTime: {fileID: 8226637225210567114, guid: 3e2b15e63d086b540aca985417983142, type: 3}
+  txtWaitingForPlayers: {fileID: 8188093421702517640, guid: 05819c965cbbeef468a128ccb8b5dfb7, type: 3}
   plantPrefabs:
   - {fileID: 1808410478792703301, guid: 80c3d89d388a2a14d8f4b7ed14cf2d35, type: 3}
   - {fileID: 1808410478792703301, guid: 3599e3825ddea56419968148cfd623f4, type: 3}
@@ -309,38 +310,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &-389457743366842623
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1808410478792703301}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 290ca9b6b4696c34e8446862424d04c9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameTimerText: {fileID: 0}
-  scoreText: {fileID: 0}
-  livesText: {fileID: 0}
-  gameOverText: {fileID: 0}
-  m_DelayedStartTime: 5
-  m_TickPeriodic:
-    m_InternalValue: 0.2
---- !u!114 &548013277275318237
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1808410478792703301}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a40e1d4d1f0162845ae5516b26539c7c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DefaultMainMenu: StartMenu
 --- !u!1 &6947847096084862983
 GameObject:
   m_ObjectHideFlags: 0

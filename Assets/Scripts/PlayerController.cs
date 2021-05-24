@@ -2,7 +2,9 @@
 using MLAPI;
 using MLAPI.Messaging;
 using MLAPI.Spawning;
+using MLAPI.NetworkVariable;
 using UnityEngine.Networking;
+using TMPro;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -17,56 +19,94 @@ public class PlayerController : NetworkBehaviour
     [SerializeField]
     LayerMask whatStopsMovement;
     [SerializeField]
+    TextMeshProUGUI txtGameTime;
+    [SerializeField]
+    TextMeshProUGUI txtWaitingForPlayers;
+    [SerializeField]
     GameObject[] plantPrefabs;
+
+    float timer;
+    bool gameStarted = false;
 
     void Start()
     {
         movePoint.parent = null;
         lookPoint.parent = null;
+        timer = 5f;
+        txtGameTime.text = ((int)timer).ToString();
+        txtGameTime.gameObject.SetActive(true);
+        txtWaitingForPlayers.gameObject.SetActive(true);
+        Debug.Log((int)timer);
     }
 
     void Update()
     { 
-        if(IsLocalPlayer){
-            transform.position = Vector3.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
+        int players = NetworkManager.ConnectedClientsList.Count;
 
-            if (Vector3.Distance(transform.position, movePoint.position) <= 0.05f) 
+        // Game doesn't start until there is more than one player
+        if(players >= 2){
+            txtWaitingForPlayers.gameObject.SetActive(false);
+            Debug.Log((int)timer);
+            // Start countdown
+            if(timer > 0)
             {
-                if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1f)
-                {
-                    Vector3 desiredMovement = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f);
-                    if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
-                    {
-                        movePoint.position += desiredMovement;
-                        lookPoint.position = movePoint.position + desiredMovement;              
-                    }
-                    else 
-                    {
-                        lookPoint.position = transform.position + desiredMovement;        
-                    }
-                } 
-                else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f)
-                {
-                    Vector3 desiredMovement = new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
-                    if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
-                    {
-                        movePoint.position += new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
-                        lookPoint.position = movePoint.position + desiredMovement;           
-                    }
-                    else 
-                    {
-                        lookPoint.position = transform.position + desiredMovement;       
-                    }
-                }
+                    timer -= Time.deltaTime;
+                    txtGameTime.gameObject.SetActive(false);
+                    txtGameTime.text = ((int)timer).ToString();
+                    txtGameTime.gameObject.SetActive(true);
+            }
+            else
+            {
+                //Start game
+                txtGameTime.gameObject.SetActive(false);
+                gameStarted = true;
+            }
+        }
 
-                if (Input.GetKey(KeyCode.Space)) 
-                {
-                    SpawnPlant();
-                }
+        if(gameStarted)
+        {
+            if(IsLocalPlayer)
+            {
+                transform.position = Vector3.MoveTowards(transform.position, movePoint.position, moveSpeed * Time.deltaTime);
 
-                if (Input.GetKey(KeyCode.LeftShift))
+                if (Vector3.Distance(transform.position, movePoint.position) <= 0.05f) 
                 {
-                    CutPlant();
+                    if (Mathf.Abs(Input.GetAxisRaw("Horizontal")) == 1f)
+                    {
+                        Vector3 desiredMovement = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, 0f);
+                        if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
+                        {
+                            movePoint.position += desiredMovement;
+                            lookPoint.position = movePoint.position + desiredMovement;              
+                        }
+                        else 
+                        {
+                            lookPoint.position = transform.position + desiredMovement;        
+                        }
+                    } 
+                    else if (Mathf.Abs(Input.GetAxisRaw("Vertical")) == 1f)
+                    {
+                        Vector3 desiredMovement = new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
+                        if (!Physics2D.OverlapCircle(movePoint.position + desiredMovement, .2f, whatStopsMovement)) 
+                        {
+                            movePoint.position += new Vector3(0f, Input.GetAxisRaw("Vertical"), 0f);
+                            lookPoint.position = movePoint.position + desiredMovement;           
+                        }
+                        else 
+                        {
+                            lookPoint.position = transform.position + desiredMovement;       
+                        }
+                    }
+
+                    if (Input.GetKey(KeyCode.Space)) 
+                    {
+                        SpawnPlant();
+                    }
+
+                    if (Input.GetKey(KeyCode.LeftShift))
+                    {
+                        CutPlant();
+                    }
                 }
             }
         }
@@ -117,4 +157,5 @@ public class PlayerController : NetworkBehaviour
     {
         CutServerRPC();
     }
+
 }

@@ -22,6 +22,10 @@ public class LobbyControl : NetworkBehaviour
     ///     Awake
     ///     This is one way to kick off a multiplayer session
     /// </summary>
+    public override void NetworkStart()
+        {
+            base.NetworkStart();
+        }
     private void Awake()
     {
         m_ClientsInLobby = new Dictionary<ulong, bool>();
