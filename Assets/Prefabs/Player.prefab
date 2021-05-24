@@ -176,7 +176,7 @@ GameObject:
   - component: {fileID: -2816605163448891036}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -236,8 +236,6 @@ MonoBehaviour:
   whatStopsMovement:
     serializedVersion: 2
     m_Bits: 256
-  txtGameTime: {fileID: 8226637225210567114, guid: 3e2b15e63d086b540aca985417983142, type: 3}
-  txtWaitingForPlayers: {fileID: 8188093421702517640, guid: 05819c965cbbeef468a128ccb8b5dfb7, type: 3}
   plantPrefabs:
   - {fileID: 1808410478792703301, guid: 80c3d89d388a2a14d8f4b7ed14cf2d35, type: 3}
   - {fileID: 1808410478792703301, guid: 3599e3825ddea56419968148cfd623f4, type: 3}

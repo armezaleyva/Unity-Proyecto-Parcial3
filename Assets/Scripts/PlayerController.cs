@@ -60,8 +60,7 @@ public class PlayerController : NetworkBehaviour
                 if (gameStarted)
                 {
                     // Calculate winner and reset round
-                    if (IsHost) CalculateWinnerServerRPC();
-                    // Todo : Reset round
+                    if (IsHost) CalculateWinnerAndResetPlantsServerRPC();
                     // Todo : Check if game over
                     gameStarted = false;
                     timer = downtimeDuration;
@@ -123,7 +122,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void CalculateWinnerServerRPC()
+    private void CalculateWinnerAndResetPlantsServerRPC()
     {     
         Debug.Log("Calculating winner...");
         var spawnedObjects = NetworkSpawnManager.SpawnedObjects;
@@ -138,6 +137,11 @@ public class PlayerController : NetworkBehaviour
             else
             {
                 playerPlants[playerId] = 0;
+            }
+
+            if (!obj.gameObject.CompareTag("Player"))
+            {
+                NetworkManager.Destroy(obj.gameObject);
             }
         }
 
