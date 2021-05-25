@@ -126,6 +126,7 @@ public class PlayerController : NetworkBehaviour
                 if (Input.GetKey(KeyCode.LeftShift))
                 {
                     CutPlant();
+                    anim.SetTrigger("cut");
                 }
             }
         }
