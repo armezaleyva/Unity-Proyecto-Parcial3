@@ -333,7 +333,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connectionButtonPanel: {fileID: 383599288}
-  player2: {fileID: 1808410478792703301, guid: be454c9a0309e66409725165abfce2a1, type: 3}
 --- !u!114 &377960961
 MonoBehaviour:
   m_ObjectHideFlags: 0

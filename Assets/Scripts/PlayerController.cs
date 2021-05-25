@@ -203,15 +203,16 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void SpawnServerRPC(ulong netID)
+    private void SpawnServerRPC(ulong netID, Color color)
     {
         Collider2D intersectingCollider = Physics2D.OverlapBox(transform.position, new Vector2(0.5f, 0.5f), 0);
         if (intersectingCollider == null) {
             int prefabIndex = UnityEngine.Random.Range(0, plantPrefabs.Length - 1);
             GameObject go = Instantiate(plantPrefabs[prefabIndex], transform.position, Quaternion.identity);
             go.GetComponent<NetworkObject>().SpawnWithOwnership(netID); 
+            go.GetComponentInChildren<SpriteRenderer>().color = color;
             ulong itemNetID = go.GetComponent<NetworkObject>().NetworkObjectId;
-            SpawnClientRPC(itemNetID);
+            SpawnClientRPC(itemNetID, color);
         }
     }
 
@@ -222,14 +223,18 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void SpawnClientRPC(ulong itemNetID)
+    private void SpawnClientRPC(ulong itemNetID, Color color)
     {
         NetworkObject netObj = NetworkSpawnManager.SpawnedObjects[itemNetID];
+        netObj.GetComponentInChildren<SpriteRenderer>().color = color;
     }
     
     void SpawnPlant()
     {
-        SpawnServerRPC(NetworkManager.Singleton.LocalClientId);
+        Color color;
+        if(IsHost) color = Color.red;
+        else color = Color.blue;
+        SpawnServerRPC(NetworkManager.Singleton.LocalClientId, color);
     }
 
     void CutPlant()
