@@ -29,6 +29,7 @@ public class PlayerController : NetworkBehaviour
     int roundDuration = 15;
     int downtimeDuration = 5;
     NetworkVariableInt players;
+    NetworkVariable<GameObject> roundWinsObject;
     bool gameStarted = false;
 
     void Awake()
@@ -52,7 +53,7 @@ public class PlayerController : NetworkBehaviour
     void Update()
     {
         GetPlayersServerRPC();
-        if (players.Value >= 1) {
+        if (players.Value >= 2) {
             txtWaitingForPlayers.gameObject.SetActive(false);
             // Start countdown
             if(timer > 0)
@@ -66,7 +67,7 @@ public class PlayerController : NetworkBehaviour
                 {
                     // Calculate winner and reset round
                     if (IsHost) CalculateWinnerAndResetPlantsServerRPC();
-                    // Todo : Check if game over
+                    if (IsHost) CheckGameOverServerRPC();
                     gameStarted = false;
                     timer = downtimeDuration;
                 }
@@ -159,7 +160,7 @@ public class PlayerController : NetworkBehaviour
                 playerPlants[playerId] = 0;
             }
 
-            if (!obj.gameObject.CompareTag("Player"))
+            if (obj.gameObject.CompareTag("Plant"))
             {
                 NetworkManager.Destroy(obj.gameObject);
             }
@@ -181,10 +182,64 @@ public class PlayerController : NetworkBehaviour
             }
         }
 
-        Debug.Log("The winners are...");
-        foreach (var xd in currentWinnersIds)
+    
+        Debug.Log("The round winners are...");
+        foreach (var winnerId in currentWinnersIds)
         {
-            Debug.Log(xd);
+            if (roundWinsObject.Value ==  null)
+            {
+                if (IsHost)
+                {
+                    GameObject test = new GameObject();
+                    test.AddComponent<StupidIdea>();
+                    test.AddComponent<NetworkObject>();
+                    StupidIdea xd = test.GetComponent<StupidIdea>();
+                    test.GetComponent<NetworkObject>().Spawn();
+                    test.tag = "DontDestroy";
+
+                    roundWinsObject.Value = test;
+                    Debug.Log(roundWinsObject.Value);
+                }
+            }
+            GameObject gameObject = roundWinsObject.Value;
+            Dictionary<ulong, int> roundWins = gameObject.GetComponent<StupidIdea>().roundWins;
+
+            if (roundWins.ContainsKey(winnerId.Value))
+            {
+                roundWins[winnerId.Value] += 1;
+            }
+            else
+            {
+                roundWins[winnerId.Value] = 1;
+            }
+            Debug.Log(winnerId);
+        }
+    }
+
+    [ServerRpc]
+    private void CheckGameOverServerRPC()
+    {
+        GameObject gameObject = roundWinsObject.Value;
+        Dictionary<ulong, int> roundWins = gameObject.GetComponent<StupidIdea>().roundWins;
+        List<ulong> winners = new List<ulong>();
+        foreach (KeyValuePair<ulong, int> entry in roundWins)
+        {
+            if (entry.Value >= 3)
+            {
+                winners.Add(entry.Key);
+            }
+            Debug.Log("ID and wins");
+            Debug.Log(entry.Key);
+            Debug.Log(entry.Value);
+        }
+
+        if (winners.Count > 0)
+        {
+            Debug.Log("The MATCH winners are...");
+            foreach (ulong winnerId in winners)
+            {
+                Debug.Log(winnerId);
+            }
         }
     }
 
