@@ -190,19 +190,19 @@ public class PlayerController : NetworkBehaviour
             {
                 if (IsHost)
                 {
-                    GameObject test = new GameObject();
-                    test.AddComponent<StupidIdea>();
-                    test.AddComponent<NetworkObject>();
-                    StupidIdea xd = test.GetComponent<StupidIdea>();
-                    test.GetComponent<NetworkObject>().Spawn();
-                    test.tag = "DontDestroy";
+                    GameObject auxObject = new GameObject();
+                    auxObject.AddComponent<AuxComponent>();
+                    auxObject.AddComponent<NetworkObject>();
+                    AuxComponent auxComponent = auxObject.GetComponent<AuxComponent>();
+                    auxObject.GetComponent<NetworkObject>().Spawn();
+                    auxObject.tag = "DontDestroy";
 
-                    roundWinsObject.Value = test;
+                    roundWinsObject.Value = auxObject;
                     Debug.Log(roundWinsObject.Value);
                 }
             }
             GameObject gameObject = roundWinsObject.Value;
-            Dictionary<ulong, int> roundWins = gameObject.GetComponent<StupidIdea>().roundWins;
+            Dictionary<ulong, int> roundWins = gameObject.GetComponent<AuxComponent>().roundWins;
 
             if (roundWins.ContainsKey(winnerId.Value))
             {
@@ -220,7 +220,7 @@ public class PlayerController : NetworkBehaviour
     private void CheckGameOverServerRPC()
     {
         GameObject gameObject = roundWinsObject.Value;
-        Dictionary<ulong, int> roundWins = gameObject.GetComponent<StupidIdea>().roundWins;
+        Dictionary<ulong, int> roundWins = gameObject.GetComponent<AuxComponent>().roundWins;
         List<ulong> winners = new List<ulong>();
         foreach (KeyValuePair<ulong, int> entry in roundWins)
         {
@@ -235,11 +235,22 @@ public class PlayerController : NetworkBehaviour
 
         if (winners.Count > 0)
         {
+            GameOver();
             Debug.Log("The MATCH winners are...");
             foreach (ulong winnerId in winners)
             {
+
                 Debug.Log(winnerId);
             }
+        }
+    }
+
+    private void GameOver() 
+    {
+        var spawnedObjects = NetworkSpawnManager.SpawnedObjects;
+        foreach (NetworkObject obj in spawnedObjects.Values)
+        {
+            NetworkManager.Destroy(obj.gameObject);
         }
     }
 
