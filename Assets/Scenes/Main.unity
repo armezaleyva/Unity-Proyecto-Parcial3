@@ -333,6 +333,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   connectionButtonPanel: {fileID: 383599288}
+  player2: {fileID: 1808410478792703301, guid: be454c9a0309e66409725165abfce2a1, type: 3}
 --- !u!114 &377960961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3157,6 +3158,8 @@ MonoBehaviour:
     - Prefab: {fileID: 1808410478792703301, guid: 56cb42a2497ec5f42a2f05d764cbb218, type: 3}
       PlayerPrefab: 0
     - Prefab: {fileID: 1808410478792703301, guid: ccd2b07546d6ce342968da98ca74aceb, type: 3}
+      PlayerPrefab: 0
+    - Prefab: {fileID: 1808410478792703301, guid: be454c9a0309e66409725165abfce2a1, type: 3}
       PlayerPrefab: 0
     PlayerPrefabHash:
       id: 0

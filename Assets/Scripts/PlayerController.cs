@@ -116,6 +116,10 @@ public class PlayerController : NetworkBehaviour
                 if (Input.GetKey(KeyCode.Space)) 
                 {
                     SpawnPlant();
+                    if(IsLocalPlayer)
+                    {
+                        anim.SetTrigger("plant");
+                    }
                 }
 
                 if (Input.GetKey(KeyCode.LeftShift))
@@ -128,10 +132,12 @@ public class PlayerController : NetworkBehaviour
 
     void LateUpdate()
     {
-        if(IsLocalPlayer){
+        if(IsLocalPlayer)
+        {
             anim.SetFloat("moveX", Input.GetAxisRaw("Horizontal"));
             anim.SetFloat("moveY", Input.GetAxisRaw("Vertical"));
             if(gameStarted) anim.SetBool("gameStarted", true);
+            else anim.SetBool("gameStarted", false);
         }
     }
 
