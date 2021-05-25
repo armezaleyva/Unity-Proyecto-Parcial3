@@ -24,13 +24,16 @@ public class PlayerController : NetworkBehaviour
     TextMeshProUGUI txtWaitingForPlayers;
     [SerializeField]
     GameObject[] plantPrefabs;
+    [SerializeField]
+    GameObject winscreenPrefab;
 
     private float timer;
-    int roundDuration = 15;
-    int downtimeDuration = 5;
+    int roundDuration = 20;
+    int downtimeDuration = 4;
     NetworkVariableInt players;
     NetworkVariable<GameObject> roundWinsObject;
     bool gameStarted = false;
+    Canvas canvas;
 
     void Awake()
     {
@@ -44,6 +47,7 @@ public class PlayerController : NetworkBehaviour
 
         timer = downtimeDuration;
         txtGameTime = GameObject.Find("GameTimerText").GetComponentInChildren<TextMeshProUGUI>();
+        canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
         txtWaitingForPlayers = GameObject.Find("WaitingForPlayers").GetComponentInChildren<TextMeshProUGUI>();
 
         txtGameTime.text = ((int)timer).ToString();
@@ -154,7 +158,10 @@ public class PlayerController : NetworkBehaviour
             var playerId = obj.OwnerClientId;
             if (playerPlants.ContainsKey(playerId))
             {
-                playerPlants[playerId] += 1;
+                if (obj.CompareTag("Plant"))
+                {
+                    playerPlants[playerId] += 1;
+                }
             }
             else
             {
@@ -236,22 +243,31 @@ public class PlayerController : NetworkBehaviour
 
         if (winners.Count > 0)
         {
-            GameOver();
+            GameOverServerRPC(NetworkManager.Singleton.LocalClientId);
             Debug.Log("The MATCH winners are...");
             foreach (ulong winnerId in winners)
             {
-
                 Debug.Log(winnerId);
             }
         }
     }
 
-    private void GameOver() 
+    [ServerRpc]
+    private void GameOverServerRPC(ulong netID) 
     {
+        GameObject go = Instantiate(winscreenPrefab, new Vector2(401.4f, 202.6f), Quaternion.identity);
+        go.transform.SetParent(canvas.transform);
+        go.GetComponent<NetworkObject>().SpawnWithOwnership(netID);
+        ulong itemNetID = go.GetComponent<NetworkObject>().NetworkObjectId;
+        GameOverClientRPC(itemNetID);
+
         var spawnedObjects = NetworkSpawnManager.SpawnedObjects;
         foreach (NetworkObject obj in spawnedObjects.Values)
         {
-            NetworkManager.Destroy(obj.gameObject);
+            if (!obj.CompareTag("DontDestroy"))
+            {
+                NetworkManager.Destroy(obj.gameObject);
+            }
         }
     }
 
@@ -294,6 +310,12 @@ public class PlayerController : NetworkBehaviour
     {
         NetworkObject netObj = NetworkSpawnManager.SpawnedObjects[itemNetID];
         netObj.GetComponentInChildren<SpriteRenderer>().color = color;
+    }
+
+    [ClientRpc]
+    private void GameOverClientRPC(ulong itemNetID)
+    {
+        NetworkObject netObj = NetworkSpawnManager.SpawnedObjects[itemNetID];
     }
     
     void SpawnPlant()

@@ -258,6 +258,7 @@ MonoBehaviour:
   - {fileID: 1808410478792703301, guid: e68ee935e98195b448d8a8502c5cd2ef, type: 3}
   - {fileID: 1808410478792703301, guid: 56cb42a2497ec5f42a2f05d764cbb218, type: 3}
   - {fileID: 1808410478792703301, guid: ccd2b07546d6ce342968da98ca74aceb, type: 3}
+  winscreenPrefab: {fileID: 8207382461410832290, guid: 532379fbbc829f449961fac7a7cb49fa, type: 3}
 --- !u!114 &1808410478792700601
 MonoBehaviour:
   m_ObjectHideFlags: 0
