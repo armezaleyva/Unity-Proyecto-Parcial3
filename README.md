@@ -6,7 +6,7 @@ https://docs.google.com/document/d/1NzCfsW4svRa0P44kyX5tsijbdlSE9ikITJkjXoKgy9M/
 
 Video de Gameplay:
 
-https://drive.google.com/file/d/1tZi1kiD2XkPJIg9HYE5IzFij-qOCRIsg/view?usp=sharing
+https://drive.google.com/file/d/12Aa0eo-f2VHNLKopwl6nrsdbTWPZRy1i/view?usp=sharing
 
 Documentación:
 
